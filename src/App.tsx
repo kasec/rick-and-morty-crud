@@ -26,7 +26,7 @@ function App() {
       </Router>
     </section>
     <footer className="py-2 flex justify-center items-center bg-gray-800">
-      <p className="text-gray-200">Created by <b>galfan</b> @2020 </p>
+      <p className="text-gray-200">Created by <b>galfan</b> @2021 </p>
     </footer>
   </div>
   )
