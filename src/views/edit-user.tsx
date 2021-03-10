@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react"
 import { useCharacters } from "../store/characters-slice/useCharacters";
-import { useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { ConfirmModal } from "../components/confirm-modal";
 import { ICharacterEntity } from "../types/ICharacterEntity";
 import { IRawCharacter } from "../types/IRawCharacter";
+import { Icon } from "@iconify/react";
+import goBackIcon from "@iconify/icons-mdi/arrow-back-circle";
 
 interface IUserParams { id: string }
 
-enum UserEntityEnum {
+export enum UserEntityEnum {
   ID = 'id',
   NAME = 'name',
   GENDER = 'gender',
@@ -56,18 +58,17 @@ export const EditUserView = function() {
     const [isOpen, setIsOpen] = useState(false)
 
     const [formData, setFormData] = useState<Partial<ICharacterEntity>>(initialForm)
-    const { updateCharacter, findByID, state }= useCharacters()
+    const { updateCharacter, findCharacterByID }= useCharacters()
     
     useEffect(() => {
-      if(!! state.length === false) return
-
-      const character = findByID(+id)
       
-      if(!! character === false) throw "Id does not match with any character"
+      findCharacterByID(+id).then(character => {
+        if(!! character === false) throw "Id does not match with any character"
+        setFormData(mapToEdit(character as IRawCharacter))
 
-      setFormData(mapToEdit(character as IRawCharacter))
+      })
 
-    }, [state])
+    }, [])
 
 
     const onSubmitAction = () => {
@@ -76,7 +77,8 @@ export const EditUserView = function() {
       
       updateCharacter(newCharacter as IRawCharacter)
       setIsOpen(false)
-      history.push("/");    }
+      history.push("/");
+    }
 
     const changeValue = (field: UserEntityEnum) => (ev: any) => {
       setFormData(formData => ({
@@ -90,6 +92,7 @@ export const EditUserView = function() {
       <section className="mt-5 relative">
         <div className="w-full max-w-screen-sm bg-gray-300 p-2 mx-auto my-auto border rounded border-gray-700">
           <nav className="px-5 flex flex-col sm:flex-row justify-between mb-5 items-center">
+            <Link to="/" className="flex items-center bg-green-200 px-2 py-1 rounded shadow"><Icon height="20"  className="mx-1" icon={goBackIcon} /> Go back</Link>
             <p className="text-xl mr-2">Edit Character</p>
           </nav>
           <form className="px-5">

@@ -3,6 +3,10 @@ import {
     updateCharacter,
     setInitialCharacters,
     characters as initialCharacters,
+    page as initialPage,
+    info as initialInfo,
+    setInitialPage,
+    setInitialInfo
   } from './state';
 
 import { useDispatch, useSelector } from "react-redux";
@@ -12,13 +16,42 @@ import { timeDelay } from '../../utils/time-delay';
 import { IRawCharacter } from '../../types/IRawCharacter';
 import { IResponse } from '../../types/IResponse';
 
+interface IInfo {
+    count: number,
+    pages: number,
+    next?: string,
+    prev?: string
+}
+
 export const useCharacters = () => {
     const characters: IRawCharacter[] = useSelector(initialCharacters);
+    const page: number = useSelector(initialPage);
+    const info: IInfo = useSelector(initialInfo);
     const dispatch = useDispatch();
     
-    const [info, setInfo] = useState({})
-    const [isLoading, setLoading] = useState({})
+    const [isLoading, setLoading] = useState(false)
     
+    const setInitialPageDispatch = (page: number) => {
+        if(!! page === false) return
+
+        dispatch(setInitialPage(page))
+    } 
+    const setInitialInfoDispatch = (info: IInfo) => {
+        dispatch(setInitialInfo(info))
+    } 
+    useEffect(() => {
+        
+        if(!! info?.prev === false) return
+
+        const { searchParams } = new URL(info?.prev as string)
+
+        const prevPage = searchParams.get('page')
+
+        const currentPage = +(prevPage || 0) + 1
+
+        setInitialPageDispatch(currentPage)
+    }, [info])
+
     const setInitialCharactersDispatch = (dto: Array<IRawCharacter>) => {
         if(!! Array.isArray(dto) === false) throw '[results] prop must be a array'
 
@@ -37,7 +70,7 @@ export const useCharacters = () => {
     }
     const settingData = (response: IResponse<IRawCharacter[]>) => {
         setInitialCharactersDispatch(response?.results)
-        setInfo(response?.info || {})
+        setInitialInfoDispatch(response?.info as IInfo)
         setLoading(false)
     }
     
@@ -53,39 +86,44 @@ export const useCharacters = () => {
         fetchJSONData('https://rickandmortyapi.com/api/character').then(settingData).catch(catchingError)
     }, [])
 
-    const findByID = (id: number) => {
-        return characters.find((item: IRawCharacter) => item.id === id)
+    const findCharacterByID = (id: number) => {
+        const character = characters.find(character => character.id === id)
+        
+        if(!! character === true) return Promise.resolve(character)
+        
+        return fetchJSONData('https://rickandmortyapi.com/api/character/' + id).catch(catchingError)
     }
 
     return {
+        page,
+        isLoading,
+        findCharacterByID,
         state: characters,
         updateCharacter: updateCharacterDispatch,
         deleteCharacter: deleteCharacterDispatch,
         /**
          * @description this function will fetch the next page of rick and morty api.
          */
-        nextPage: () => { setLoading(true); timeDelay(400).then(() => nextPage(info, settingData, catchingError)) },
+        nextPage: () => { setLoading(true); timeDelay(400).then(() => nextPage(info as IInfo, settingData, catchingError)) },
         /**
          * @description this function will fetch the prev page of rick and morty api.
          */
-        prevPage: () => { setLoading(true); timeDelay(400).then(() => prevPage(info, settingData, catchingError)) },
-        isLoading,
-        findByID
+        prevPage: () => { setLoading(true); timeDelay(400).then(() => prevPage(info as IInfo, settingData, catchingError)) },
     }
 }
 
 type ISettingData = (response: IResponse<IRawCharacter[]>) =>  void
 type ICatchingError = (err?: Error) => void
 
-const nextPage = function(info: Record<string, any>, settingData: ISettingData, catchingError: ICatchingError) {
+const nextPage = function(info: IInfo, settingData: ISettingData, catchingError: ICatchingError) {
     const { next } = info
     
     if(!! next === false) return catchingError()
 
-    fetchJSONData(next).then(settingData).catch(catchingError)
+    fetchJSONData(next as string).then(settingData).catch(catchingError)
 }
 
-const prevPage = function(info: Record<string, any>, settingData: ISettingData, catchingError: ICatchingError) {
+const prevPage = function(info: IInfo, settingData: ISettingData, catchingError: ICatchingError) {
     const { prev } = info
     
     if(!! prev === false) return catchingError()
