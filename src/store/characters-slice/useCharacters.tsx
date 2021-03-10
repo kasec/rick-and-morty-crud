@@ -40,8 +40,9 @@ export const useCharacters = () => {
         dispatch(setInitialInfo(info))
     } 
     useEffect(() => {
+        console.log({ info });
         
-        if(!! info?.prev === false) return
+        if(!! info?.prev === false) return setInitialPageDispatch(1)
 
         const { searchParams } = new URL(info?.prev as string)
 
@@ -118,7 +119,7 @@ type ICatchingError = (err?: Error) => void
 const nextPage = function(info: IInfo, settingData: ISettingData, catchingError: ICatchingError) {
     const { next } = info
     
-    if(!! next === false) return catchingError()
+    if(!! next === false) return catchingError(new Error('Next url does not exist, is not error at all'))
 
     fetchJSONData(next as string).then(settingData).catch(catchingError)
 }
@@ -126,7 +127,7 @@ const nextPage = function(info: IInfo, settingData: ISettingData, catchingError:
 const prevPage = function(info: IInfo, settingData: ISettingData, catchingError: ICatchingError) {
     const { prev } = info
     
-    if(!! prev === false) return catchingError()
+    if(!! prev === false) return catchingError(new Error('Prev url does not exist, is not error at all'))
 
     fetchJSONData(prev as string).then(settingData).catch(catchingError)
 }
