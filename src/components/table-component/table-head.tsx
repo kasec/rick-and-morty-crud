@@ -10,15 +10,14 @@ export interface IFields {
 
 export const TableHead = ({ fields }: { fields: IFields[] }) => {
     return (
-    <thead>
-        <tr>
-            {
-                fields.map((field: Record<string, any>, index: number) => (
-                    <th key={index} className={"sticky top-0 px-6 py-3 text-gray-900 bg-gray-300" + (field.breakPoint ? ' hidden sm:table-cell' : '') }>{ field.label }</th>
-                ))
-            }
-        </tr>
-    </thead>
-
+        <thead>
+            <tr>
+                {
+                    fields.map((field: Record<string, any>, index: number) => (
+                        <th key={index} className={"sticky top-0 px-6 py-3 text-gray-900 bg-gray-300" + (field.breakPoint ? ' hidden sm:table-cell' : '') }>{ field.label }</th>
+                    ))
+                }
+            </tr>
+        </thead>
     )
 }

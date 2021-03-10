@@ -79,6 +79,7 @@ export const HomeView = function() {
             </>
         },
     ]
+    
     return <>
         <DeleteModal isOpen={deleteToggle} onSubmit={submitAction} onClose={() => setDeleteToggle(false)}/>
         { infoToggle && <InfoModal onClose={() => setInfoToggle(false)} state={rowSelected as IRawCharacter}/> }

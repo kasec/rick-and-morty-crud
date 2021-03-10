@@ -15,18 +15,16 @@ import { fetchJSONData } from '../../utils/fetch-json-data';
 import { timeDelay } from '../../utils/time-delay';
 import { IRawCharacter } from '../../types/IRawCharacter';
 import { IResponse } from '../../types/IResponse';
+import { IResponseInfo } from '../../types/IResponseInfo';
 
-interface IInfo {
-    count: number,
-    pages: number,
-    next?: string,
-    prev?: string
-}
-
+/**
+ * @description This hook is a abstraction of methods used by characters and service connection with redux. 
+ * The developer who use this hook does not use redux functionality and just can do specific tasks.
+ */
 export const useCharacters = () => {
     const characters: IRawCharacter[] = useSelector(initialCharacters);
     const page: number = useSelector(initialPage);
-    const info: IInfo = useSelector(initialInfo);
+    const info: IResponseInfo = useSelector(initialInfo);
     const dispatch = useDispatch();
     
     const [isLoading, setLoading] = useState(false)
@@ -35,13 +33,13 @@ export const useCharacters = () => {
         if(!! page === false) return
 
         dispatch(setInitialPage(page))
-    } 
-    const setInitialInfoDispatch = (info: IInfo) => {
+    }
+
+    const setInitialInfoDispatch = (info: IResponseInfo) => {
         dispatch(setInitialInfo(info))
-    } 
+    }
+
     useEffect(() => {
-        console.log({ info });
-        
         if(!! info?.prev === false) return setInitialPageDispatch(1)
 
         const { searchParams } = new URL(info?.prev as string)
@@ -66,12 +64,14 @@ export const useCharacters = () => {
     const deleteCharacterDispatch = (id: number) => {
         dispatch(deleteCharacter(id))
     }
+
     const updateCharacterDispatch = (character: IRawCharacter) => {
         dispatch(updateCharacter(character))
     }
+
     const settingData = (response: IResponse<IRawCharacter[]>) => {
         setInitialCharactersDispatch(response?.results)
-        setInitialInfoDispatch(response?.info as IInfo)
+        setInitialInfoDispatch(response?.info as IResponseInfo)
         setLoading(false)
     }
     
@@ -87,6 +87,9 @@ export const useCharacters = () => {
         fetchJSONData('https://rickandmortyapi.com/api/character').then(settingData).catch(catchingError)
     }, [])
 
+    /**
+     * @description this function will get a character by id if its exist in virtual characters otherwise will fetch from API.
+     */
     const findCharacterByID = (id: number) => {
         const character = characters.find(character => character.id === id)
         
@@ -103,20 +106,22 @@ export const useCharacters = () => {
         updateCharacter: updateCharacterDispatch,
         deleteCharacter: deleteCharacterDispatch,
         /**
-         * @description this function will fetch the next page of rick and morty api.
+         * @description this function will fetch the next page of rick and morty api with a delay time.
          */
-        nextPage: () => { setLoading(true); timeDelay(400).then(() => nextPage(info as IInfo, settingData, catchingError)) },
+        nextPage: () => { setLoading(true); timeDelay(400).then(() => nextPage(info as IResponseInfo, settingData, catchingError)) },
         /**
-         * @description this function will fetch the prev page of rick and morty api.
+         * @description this function will fetch the prev page of rick and morty api with a delay time..
          */
-        prevPage: () => { setLoading(true); timeDelay(400).then(() => prevPage(info as IInfo, settingData, catchingError)) },
+        prevPage: () => { setLoading(true); timeDelay(400).then(() => prevPage(info as IResponseInfo, settingData, catchingError)) },
     }
 }
+
+// these below types could be in types directory they are not public at all <separation of concerns> just are used here. 
 
 type ISettingData = (response: IResponse<IRawCharacter[]>) =>  void
 type ICatchingError = (err?: Error) => void
 
-const nextPage = function(info: IInfo, settingData: ISettingData, catchingError: ICatchingError) {
+const nextPage = function(info: IResponseInfo, settingData: ISettingData, catchingError: ICatchingError) {
     const { next } = info
     
     if(!! next === false) return catchingError(new Error('Next url does not exist, is not error at all'))
@@ -124,7 +129,7 @@ const nextPage = function(info: IInfo, settingData: ISettingData, catchingError:
     fetchJSONData(next as string).then(settingData).catch(catchingError)
 }
 
-const prevPage = function(info: IInfo, settingData: ISettingData, catchingError: ICatchingError) {
+const prevPage = function(info: IResponseInfo, settingData: ISettingData, catchingError: ICatchingError) {
     const { prev } = info
     
     if(!! prev === false) return catchingError(new Error('Prev url does not exist, is not error at all'))

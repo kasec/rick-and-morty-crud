@@ -13,7 +13,9 @@ export const TableComponent = function TableComponent({ fields, rows }: { rows: 
                         <tr key={index}>
                             {
                                 fields.map(({field, breakPoint, customValue}) => (
-                                    <td key={field} className={"px-6 py-4 text-center" + (breakPoint ? ' hidden sm:table-cell' : '')}>{ customValue ?  customValue(character) : character[field] }</td>
+                                    <td key={field} className={"px-6 py-4 text-center" + (breakPoint ? ' hidden sm:table-cell' : '')}>
+                                        { customValue ?  customValue(character) : character[field] }
+                                    </td>
                                 ))
                                 
                             }
