@@ -128,5 +128,5 @@ const prevPage = function(info: IInfo, settingData: ISettingData, catchingError:
     
     if(!! prev === false) return catchingError()
 
-    fetchJSONData(prev).then(settingData).catch(catchingError)
+    fetchJSONData(prev as string).then(settingData).catch(catchingError)
 }
