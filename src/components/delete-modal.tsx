@@ -25,7 +25,7 @@ export const DeleteModal = ({ onClose, onSubmit, isOpen }: IModalFormProps) => {
     }
     
     return _isOpen ?
-      <section className="absolute inset-0 bg-gray-800 bg-opacity-80 flex flex-col items-center z-50">
+    <section className="absolute inset-0 bg-gray-800 bg-opacity-80 flex flex-col items-center z-50">
       <div className="w-full max-w-screen-sm bg-gray-300 p-2 mx-auto my-auto border rounded border-gray-700">
         <div className="flex justify-end mb-5">
           <button onClick={_onClose} className="p-2 bg-gray-600 rounded-lg hover:bg-gray-500 shadow">
